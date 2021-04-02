@@ -19,9 +19,11 @@ maxOutOfRadius = 3; % how many times distance is checked before giving up
 filetype = 'makowsk'; % either 'makowsk' or 'fracmap'
 rngSeed = 0;
 
+% maximum and minimum boundaries for "box" check
 box_low = 3;
 box_high = 100;
 
+% maximum and minimum radius for "radius" check
 rad_low = 5;
 rad_high = 15;
 
@@ -81,10 +83,8 @@ randRadius = randi([rad_low rad_high],1,iterations) * radius; % used for 'radius
 boxDims = randomBox(box_low,box_high,radius);
 
 for i = 1:length(randNode) % iterate over all random starting nodes
-    %fprintf("Iteration: %d\n  Starting node: %d\n  Search radius: %d\n", i, randNode(i), randRadius(i));
     fprintf("Iteration: %d\n  Starting node: %d\n", i, randNode(i));
     clear subAgg
-    %  Search width/radius: %d\n
     
     b = bfsearch(g, randNode(i));
     subAgg = table2array(g.Nodes(randNode(i),:))'; % [x,y,z] of sub-aggregate compatible with Divjyot's RoG function
@@ -180,12 +180,12 @@ function out = randomBox(low, high, radius)
     out = randi([low high],1,3) * radius;
 end
 
-function out = nodeIsInBox(g, boxDims, center, cand)
-% center, cand are indices
+function out = nodeIsInBox(g, boxDims, center, candidate)
+% center, candidate are indices
 % boxDims is array containing x, y, z lengths of box
-    temp = abs(table2array(g.Nodes(cand,:)) - table2array(g.Nodes(center,:)));
+    temp = abs(table2array(g.Nodes(candidate,:)) - table2array(g.Nodes(center,:)));
     for i = 1:3
-        if temp(i) > boxDims(1)
+        if temp(i) > boxDims(i)
             out = false;
             return
         end
