@@ -9,13 +9,13 @@ clearvars % clears existing variables in the workspace
 clf('reset') % reset figure window
 
 % MAKE SURE FILENAME IS OF THE FORM "npart-nsamp-k0-df-iccmod.txt"
-inputFile= % INSERT FILEPATH
+inputFile= ""; %"C:\Users\gamer\Documents\MATLAB\divjyotscode\FracMap_600.txt"; % Path to the input file
 margin = 2; %[nm]
 
 %% "Hyperparameters"
 distanceCheck = 'box'; % 'box' or 'radius'
-iterations = 100; % how many sub-aggregates are sampled
-maxOutOfRadius = 3; % how many times distance is checked before giving up
+iterations = 20000; % how many sub-aggregates are sampled
+maxOutOfRadius = 2; % how many times distance is checked before giving up
 filetype = 'makowsk'; % either 'makowsk' or 'fracmap'
 rngSeed = 0;
 
@@ -66,6 +66,9 @@ g = graph(edgeTail, edgeHead);
 g.Nodes.X = aggCon(:,1);
 g.Nodes.Y = aggCon(:,2);
 g.Nodes.Z = aggCon(:,3);
+
+Nodes = table2array(g.Nodes)';
+g_size = length(Nodes(1,:));
 %plot(g)
 
 %% Generate data
@@ -88,7 +91,8 @@ for i = 1:length(randNode) % iterate over all random starting nodes
     clear subAgg
     
     b = bfsearch(g, randNode(i));
-    subAgg = table2array(g.Nodes(randNode(i),:))'; % [x,y,z] of sub-aggregate compatible with Divjyot's RoG function
+    
+    subAgg = Nodes(:, randNode(i)); % [x,y,z] of sub-aggregate compatible with Divjyot's RoG function
     outOfRadiusCounter = 0;
     
     if strcmp('box', distanceCheck)
@@ -103,14 +107,14 @@ for i = 1:length(randNode) % iterate over all random starting nodes
        end
        
        if strcmp('box', distanceCheck)
-           if nodeIsInBox(g, boxDims, randNode(i), b(j)) 
-                subAgg = [subAgg table2array(g.Nodes(b(j),:))']; % probably should be replaced with a list
+           if nodeIsInBox(Nodes, boxDims, randNode(i), b(j)) 
+                subAgg = [subAgg Nodes(:, b(j))]; % probably should be replaced with a list
            else
                outOfRadiusCounter = outOfRadiusCounter + 1;
            end
        elseif strcmp('radius', distanceCheck)
-           if nodeDistance(g, randNode(i), b(j)) < randRadius(i) % nodeDistance(g, randNode(i), b(j)) <= randRadius(i)
-                subAgg = [subAgg table2array(g.Nodes(b(j),:))']; % probably should be replaced with a list
+           if nodeDistance(Nodes, randNode(i), b(j)) < randRadius(i) % nodeDistance(g, randNode(i), b(j)) <= randRadius(i)
+                subAgg = [subAgg Nodes(:, b(j))]; % probably should be replaced with a list
            else
                outOfRadiusCounter = outOfRadiusCounter + 1;
            end
@@ -155,10 +159,10 @@ hold off
 [~, name, ~] = fileparts(inputFile);
 fileparams = textscan(name, "%f-%f-%f-%f-%f");
 params = [distanceCheck iterations maxOutOfRadius filetype rngSeed " " box_low box_high " " rad_low rad_high];
-data = [exp(coefficients(1)) exp(coefficients(2))];
+data = [exp(coefficients(2)) (coefficients(1))];
 outputRow = [name " " fileparams " " data " " params];
 
-writematrix(outputRow,'csvname.csv'); % INSERT csvname HERE
+writematrix(outputRow,'');
 
 fclose('all');
 clear inputFile
@@ -167,7 +171,8 @@ clear monomersData
 
 %% Functions
 function d = distance(a, b)
-    d = sqrt(dot(a-b, a-b));
+    temp = a-b;
+    d = sqrt(dot(temp, temp));
 end
 
 function d = nodeDistance(g, a,b) 
@@ -181,10 +186,10 @@ function out = randomBox(low, high, radius)
     out = randi([low high],1,3) * radius;
 end
 
-function out = nodeIsInBox(g, boxDims, center, candidate)
+function out = nodeIsInBox(Nodes, boxDims, center, candidate)
 % center, candidate are indices
 % boxDims is array containing x, y, z lengths of box
-    temp = abs(table2array(g.Nodes(candidate,:)) - table2array(g.Nodes(center,:)));
+    temp = abs((Nodes(:,candidate)) - (Nodes(:,center)));
     for i = 1:3
         if temp(i) > boxDims(i)
             out = false;
