@@ -9,7 +9,7 @@ clearvars % clears existing variables in the workspace
 clf('reset') % reset figure window
 
 % MAKE SURE FILENAME IS OF THE FORM "npart-nsamp-k0-df-iccmod.txt"
-inputFile= "C:\Users\gamer\Documents\MATLAB\convexity\fractal_properties\Makowski\compile\1000-1000-1.3-1.8-0.txt"; %"C:\Users\gamer\Documents\MATLAB\divjyotscode\FracMap_600.txt"; % Path to the input file
+inputFile= % INSERT FILEPATH
 margin = 2; %[nm]
 
 %% "Hyperparameters"
@@ -158,7 +158,7 @@ params = [distanceCheck iterations maxOutOfRadius filetype rngSeed " " box_low b
 data = [exp(coefficients(1)) exp(coefficients(2))];
 outputRow = [name " " fileparams " " data " " params];
 
-writematrix(outputRow,'C:\Users\gamer\Documents\MATLAB\convexity\fractal_properties\data.csv','WriteMode','append');
+writematrix(outputRow,'csvname.csv'); % INSERT csvname HERE
 
 fclose('all');
 clear inputFile
