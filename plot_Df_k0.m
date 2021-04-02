@@ -70,13 +70,14 @@ g.Nodes.Z = aggCon(:,3);
 
 %% Generate data
 
+rng(rngSeed,'twister'); % seed random number generator
+randNode = randi([1 length(aggCon)],1,iterations); % generated random integers
+
 % data arrays
 N_monomers = [];
 r_g = [];
 
 % radial distance check 
-rng(rngSeed,'twister'); % seed random number generator
-randNode = randi([1 length(aggCon)],1,iterations); % generated random integers
 randRadius = randi([rad_low rad_high],1,iterations) * radius; % used for 'radius' proximity checks
 
 % box 
