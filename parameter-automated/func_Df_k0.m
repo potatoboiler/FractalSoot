@@ -9,7 +9,7 @@ Input:
         outputcsv - not yet used
         rngSeed - 
 %}
-function [Df, k0] = func_Df_k0 (aggregateConfiguration, monomerRadius, boxLow, boxHigh, varargin)
+function [Df, k0] = func_Df_k0 (g, Nodes, aggregateConfiguration, monomerRadius, boxLow, boxHigh, varargin)
     p = inputParser;
     %{
     %}
@@ -26,28 +26,8 @@ function [Df, k0] = func_Df_k0 (aggregateConfiguration, monomerRadius, boxLow, b
    
     parse(p, aggregateConfiguration, monomerRadius, boxLow, boxHigh, varargin{:});
     
-    %% Graph generation
-    edgeTail = [];
-    edgeHead = [];
-    for i = 1:length(aggregateConfiguration)
-        for j = i+1:length(aggregateConfiguration)
-           if distance(aggregateConfiguration(i,:), aggregateConfiguration(j,:)) <= 2.1*monomerRadius
-               edgeTail(end+1) = i;
-               edgeHead(end+1) = j;
-            end
-        end
-    end
-
-    g = graph(edgeTail, edgeHead);
-    
-    g.Nodes.X = aggregateConfiguration(:,1);
-    g.Nodes.Y = aggregateConfiguration(:,2);
-    g.Nodes.Z = aggregateConfiguration(:,3);
-
-    Nodes = table2array(g.Nodes)';
-    
+   
     %% Generate data
-
     rng(p.Results.rngSeed,'twister'); % seed random number generator
     randNode = randi([1 length(aggregateConfiguration)],1,p.Results.iterations); % generated random integers
 

@@ -31,19 +31,37 @@ elseif(strcmp('makowsk',filetype))
 end
 monomersData = cell2mat(monomersData);
 
-%% Conducting tests 
 radius = monomersData(1,1);
 aggCon = monomersData(:,2:4); % aggregate configuration
+%% Graph generation
+edgeTail = [];
+edgeHead = [];
+for i = 1:length(aggCon)
+    for j = i+1:length(aggCon)
+       if distance(aggCon(i,:), aggCon(j,:)) <= 2.1*radius
+           edgeTail(end+1) = i;
+           edgeHead(end+1) = j;
+        end
+    end
+end
 
-maxLength = 40;
+g = graph(edgeTail, edgeHead);
+
+g.Nodes.X = aggCon(:,1);
+g.Nodes.Y = aggCon(:,2);
+g.Nodes.Z = aggCon(:,3);
+
+Nodes = table2array(g.Nodes)';
+%% Conducting tests 
+maxLength = 15;
 minLength = 2;
 % create test-space
 
 test_space = 20*ones(maxLength, maxLength);
 for high = minLength : maxLength 
-    parfor low = minLength : high
+    for low = minLength : high
         fprintf("low: %d, high: %d\n", low, high);
-        [Df, k0] = func_Df_k0(aggCon, radius, low, high);
+        [Df, k0] = func_Df_k0(g, Nodes, aggCon, radius, low, high);
         test_space(low, high) = min(20, MSE([Df k0], [1.8 1.3]));
     end
 end
