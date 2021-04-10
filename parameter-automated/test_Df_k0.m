@@ -1,7 +1,6 @@
 %% Initialisation
-delete(gcp('nocreate'));
-clearvars % clears existing variables in the workspace
-clf('reset') % reset figure window
+clear all; 
+% clc clears command line
 margin = 2; %[nm]
 
 %% "Hyperparameters"
@@ -38,6 +37,8 @@ monomersData = cell2mat(monomersData);
 radius = monomersData(1,1);
 aggCon = monomersData(:,2:4); % aggregate configuration
 %% Graph generation
+% can also cache distance here as adjacency matrix
+% 
 edgeTail = [];
 edgeHead = [];
 for i = 1:length(aggCon)
@@ -56,17 +57,24 @@ g.Nodes.Y = aggCon(:,2);
 g.Nodes.Z = aggCon(:,3);
 
 Nodes = table2array(g.Nodes);
+
+BFStable = zeros(length(Nodes), length(Nodes));
+for i = 1 : length(Nodes)
+    BFStable(i,:) = bfsearch(g, i);
+end
 %% Conducting tests 
-maxLength = 15;%floor(maxDistance(aggCon)/4);
+maxLength = 20; %floor(maxDistance(aggCon)/2);
 minLength = 2;
 % create test-space
 
 test_space = 20*ones(maxLength, maxLength);
-for high = minLength : maxLength 
+for high = 2 : maxLength 
     for low = minLength : high
+        tic
         fprintf("low: %d, high: %d\n", low, high);
-        [Df, k0] = func_Df_k0(g, Nodes, aggCon, radius, low, high);
+        [Df, k0] = func_Df_k0(g, Nodes, BFStable, radius, low, high);
         test_space(low, high) = min(20, MSE([Df k0], [1.8 1.3]));
+        toc
     end
 end
 mesh(test_space)
