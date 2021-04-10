@@ -9,7 +9,11 @@ margin = 2; %[nm]
 inputFile= ""; % Path to the input file
 outputcsv = ''; % FILEPATH FOR CSV FILE
 filetype = 'makowsk';
-pool = parpool("threads");
+%pool = parpool("threads");
+
+%% Notes
+%120-180-1.3-1.8-1 --> optimal bounds are roughly [4, 7]
+%
 
 %% Extracting Data from file
 
@@ -51,9 +55,9 @@ g.Nodes.X = aggCon(:,1);
 g.Nodes.Y = aggCon(:,2);
 g.Nodes.Z = aggCon(:,3);
 
-Nodes = table2array(g.Nodes)';
+Nodes = table2array(g.Nodes);
 %% Conducting tests 
-maxLength = 15;
+maxLength = 15;%floor(maxDistance(aggCon)/4);
 minLength = 2;
 % create test-space
 
@@ -66,7 +70,7 @@ for high = minLength : maxLength
     end
 end
 mesh(test_space)
-
+maxDistance(aggCon)
 %% Helper functions
 function error = MSE(generated_params, sampled_params) 
     % both inputs should be pairs in the form [Dimension, prefactor] or

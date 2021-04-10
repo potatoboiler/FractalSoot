@@ -26,7 +26,7 @@ function [Df, k0] = func_Df_k0 (g, Nodes, aggregateConfiguration, monomerRadius,
    
     parse(p, aggregateConfiguration, monomerRadius, boxLow, boxHigh, varargin{:});
     
-   
+    maxOutOfRadius = p.Results.maxOutOfRadius;
     %% Generate data
     rng(p.Results.rngSeed,'twister'); % seed random number generator
     randNode = randi([1 length(aggregateConfiguration)],1,p.Results.iterations); % generated random integers
@@ -36,7 +36,7 @@ function [Df, k0] = func_Df_k0 (g, Nodes, aggregateConfiguration, monomerRadius,
     r_g = [];
 
     % box 
-    %boxDims = [boxSize boxSize boxSize] * monomerRadius;
+    % boxDims = [boxSize boxSize boxSize] * monomerRadius;
 
     for i = 1:length(randNode) % iterate over all random starting nodes
         % NOTE: replace print functions with waitbar()?
@@ -48,22 +48,22 @@ function [Df, k0] = func_Df_k0 (g, Nodes, aggregateConfiguration, monomerRadius,
         
         b = bfsearch(g, randNode(i));
 
-        subAgg = Nodes(:, randNode(i)); % [x,y,z] of sub-aggregate compatible with Divjyot's RoG function
+        subAgg = Nodes(randNode(i),:); % [x,y,z] of sub-aggregate compatible with Divjyot's RoG function
         outOfRadiusCounter = 0;
         
         for j = 1:size(b) % iterate over searched nodes
-           if outOfRadiusCounter > p.Results.maxOutOfRadius
+           if outOfRadiusCounter > maxOutOfRadius
                break % note: this termination condition relies on order of BFS
            end
 
            if nodeIsInBox(Nodes, boxDims, randNode(i), b(j)) 
-                subAgg = [subAgg Nodes(:, b(j))]; % probably should be replaced with a list
+                subAgg = [subAgg; Nodes(b(j),:)]; % probably should be replaced with a list
            else
                outOfRadiusCounter = outOfRadiusCounter + 1;
            end
-       end
+        end
 
-        subAgg = subAgg'; % Transpose why? i don't know
+        %subAgg = subAgg'; % Transpose why? i don't know
         new_n = size(subAgg,1)-1; 
         new_r = RoG(subAgg, monomerRadius);
 
@@ -89,7 +89,7 @@ end
 function out = nodeIsInBox(Nodes, boxDims, center, candidate)
 % center, candidate are indices
 % boxDims is array containing x, y, z lengths of box
-    temp = abs((Nodes(:,candidate)) - (Nodes(:,center)));
+    temp = abs((Nodes(candidate,:)) - (Nodes(center,:)));
     for i = 1:3
         if temp(i) > boxDims(i)
             out = false;
