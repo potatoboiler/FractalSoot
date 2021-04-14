@@ -65,7 +65,7 @@ function [fractal_dimension, prefactor] = func_Df_k0 (Nodes, BFStable, monomerRa
                 
         % generates 3 random integers (box dimensions), then scales by radius 
         % to guarantee that at least a few monomers will be contained in the box
-        boxDims = randi([boxLow boxHigh],1,3) * radius;
+        boxDims = randi([boxLow boxHigh],1,3) * monomerRadius;
         
         b = BFStable(randNode(i),:); % refer to notes about input arguments
 
