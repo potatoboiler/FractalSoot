@@ -32,6 +32,7 @@ function [fractal_dimension, prefactor] = func_Df_k0 (Nodes, BFStable, monomerRa
                 rngSeed - seed for random number generator
     %}
     addRequired(p, 'Nodes', @(x) (size(x,2) == 3 || size(x,2) == 3));
+    addRequired(p, 'BFStable');
     addRequired(p, 'monomerRadius', @(x) (x > 0) && isnumeric(x) && isscalar(x));
     addRequired(p, 'boxLow', @(x) (x > 0) && isnumeric(x) && isscalar(x));
     addRequired(p, 'boxHigh', @(x) (x > 0) && isnumeric(x) && isscalar(x));
@@ -42,7 +43,7 @@ function [fractal_dimension, prefactor] = func_Df_k0 (Nodes, BFStable, monomerRa
     addParameter(p,'rngSeed',0);
     addParameter(p,'boxDims',0);
    
-    parse(p, Nodes, monomerRadius, boxLow, boxHigh, varargin{:});
+    parse(p, Nodes, BFStable, monomerRadius, boxLow, boxHigh, varargin{:});
     
     maxOutOfRadius = p.Results.maxOutOfRadius;
     iterations = p.Results.iterations;
