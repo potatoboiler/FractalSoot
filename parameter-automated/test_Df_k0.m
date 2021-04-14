@@ -1,5 +1,7 @@
 %% Initialisation
-clear all; 
+delete(gcp('nocreate'));
+clearvars; 
+clf('reset');
 % clc clears command line
 margin = 2; %[nm]
 
@@ -8,10 +10,10 @@ margin = 2; %[nm]
 inputFile= ""; % Path to the input file
 outputcsv = ''; % FILEPATH FOR CSV FILE
 filetype = 'makowsk';
-%pool = parpool("threads");
+pool = parpool("threads");
 
 %% Notes
-%120-180-1.3-1.8-1 --> optimal bounds are roughly [4, 7]
+% 120-180-1.3-1.8-1 --> optimal bounds are roughly [4, 7]
 %
 
 %% Extracting Data from file
@@ -38,7 +40,6 @@ radius = monomersData(1,1);
 aggCon = monomersData(:,2:4); % aggregate configuration
 %% Graph generation
 % can also cache distance here as adjacency matrix
-% 
 edgeTail = [];
 edgeHead = [];
 for i = 1:length(aggCon)
@@ -63,20 +64,22 @@ for i = 1 : length(Nodes)
     BFStable(i,:) = bfsearch(g, i);
 end
 %% Conducting tests 
-maxLength = 20; %floor(maxDistance(aggCon)/2);
+maxLength = floor(maxDistance(aggCon)/1);
 minLength = 2;
 % create test-space
+test_space = 10*ones(maxLength, maxLength);
 
-test_space = 20*ones(maxLength, maxLength);
-for high = 2 : maxLength 
-    for low = minLength : high
-        tic
+for high = minLength : maxLength
+    tic
+    parfor low = minLength : high
         fprintf("low: %d, high: %d\n", low, high);
-        [Df, k0] = func_Df_k0(g, Nodes, BFStable, radius, low, high);
-        test_space(low, high) = min(20, MSE([Df k0], [1.8 1.3]));
-        toc
+        [Df, k0] = func_Df_k0(Nodes, BFStable, radius, low, high);
+        x = MSE([Df k0], [1.8 1.3]);
+        test_space(low, high) = min(10, x);
     end
+    toc
 end
+
 mesh(test_space)
 maxDistance(aggCon)
 %% Helper functions
