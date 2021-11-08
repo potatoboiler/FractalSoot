@@ -29,6 +29,8 @@ function [fractal_dimension, prefactor, errors] = func_Df_k0 (Nodes, BFStable, m
             monomerRadius - real number
             boxLow - lower bound on possible box sizes; real number, preferably integer
             bowHigh - upper bound on possible box sizes; real number, preferably integer
+            fracDim - fractal dimension value to be compared against
+            pref - prefactor value to be compared against
             varargin - 
                 iterations - number of samples
                 maxOutOfRadius - how many times the algorithm will check 
